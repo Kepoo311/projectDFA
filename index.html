@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DFA SIMULATOR by Kelompok 1</title>
+<meta name="description" content="DFA SIMULATOR by Kelompok 1 — simulator Deterministic Finite Automaton interaktif: buat state & transisi, uji string dengan animasi langkah demi langkah.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f9">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#10141b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Sprite ikon SVG (tanpa emoji) -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-cursor" viewBox="0 0 24 24"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></symbol>
+  <symbol id="i-state" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 9v6M9 12h6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><circle cx="5.5" cy="6" r="2.5"/><circle cx="18.5" cy="18" r="2.5"/><path d="M7.5 7.5c4 2 5 7 9 9"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5L8 5.5z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-step" viewBox="0 0 24 24"><path d="M5 5.5v13l9.5-6.5L5 5.5z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3M21 16v3a2 2 0 0 1-2 2h-3"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.6 2.6 0 1 1 3.7 2.4c-.8.4-1.3 1-1.3 1.9"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-arrow-in" viewBox="0 0 24 24"><path d="M21 12H7M13 6l-6 6 6 6"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+</svg>
+
+<div class="app">
+
+  <!-- ====== BAR ATAS ====== -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 40 24" aria-hidden="true">
+        <circle cx="7" cy="12" r="5"/><circle cx="27" cy="6" r="5"/><circle cx="33" cy="18" r="5"/>
+        <path d="M11.5 10.5L22.5 7.5M9.5 16.5L28.8 16.4"/>
+      </svg>
+      <div class="brand-text">
+        <h1>DFA SIMULATOR</h1>
+        <span class="brand-sub">by Kelompok 1</span>
+      </div>
+    </div>
+
+    <div class="tools" role="toolbar" aria-label="Mode alat">
+      <button type="button" class="tool active" data-tool="select" aria-pressed="true" title="Pilih & geser (1)">
+        <svg class="icon"><use href="#i-cursor"/></svg><span>Pilih</span>
+      </button>
+      <button type="button" class="tool" data-tool="add" aria-pressed="false" title="Tambah state (2)">
+        <svg class="icon"><use href="#i-state"/></svg><span>State</span>
+      </button>
+      <button type="button" class="tool" data-tool="connect" aria-pressed="false" title="Buat transisi (3)">
+        <svg class="icon"><use href="#i-link"/></svg><span>Transisi</span>
+      </button>
+    </div>
+
+    <div class="topbar-right">
+      <div class="zoomctl" role="group" aria-label="Zoom kanvas">
+        <button type="button" id="zoomOut" aria-label="Perkecil"><svg class="icon"><use href="#i-minus"/></svg></button>
+        <span id="zoomLabel" aria-live="off">100%</span>
+        <button type="button" id="zoomIn" aria-label="Perbesar"><svg class="icon"><use href="#i-plus"/></svg></button>
+        <button type="button" id="zoomFit" aria-label="Sesuaikan tampilan"><svg class="icon"><use href="#i-fit"/></svg></button>
+      </div>
+
+      <select id="presetSelect" aria-label="Muat contoh DFA">
+        <option value="">Contoh DFA…</option>
+        <option value="startab">Diawali “ab”</option>
+        <option value="even0">Jumlah 0 genap</option>
+        <option value="endsab">Berakhiran “ab”</option>
+        <option value="div3">Biner ÷ 3</option>
+      </select>
+
+      <button type="button" id="themeBtn" aria-label="Ganti tema terang/gelap" title="Tema terang/gelap"><svg class="icon"><use href="#i-moon"/></svg></button>
+      <button type="button" id="helpBtn" aria-label="Bantuan penggunaan"><svg class="icon"><use href="#i-help"/></svg></button>
+      <button type="button" id="panelToggle" class="mobile-only" aria-label="Buka panel inspektor" aria-expanded="false"><svg class="icon"><use href="#i-panel"/></svg></button>
+    </div>
+  </header>
+
+  <!-- ====== AREA UTAMA ====== -->
+  <main class="stage">
+    <div class="canvas-wrap">
+      <svg id="graph" aria-label="Kanvas diagram DFA">
+        <defs>
+          <pattern id="gridDots" width="26" height="26" patternUnits="userSpaceOnUse">
+            <circle cx="1.2" cy="1.2" r="1.2" class="grid-dot"/>
+          </pattern>
+          <!-- Mata panah transisi: normal & saat aktif -->
+          <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" class="arrow-fill"/>
+          </marker>
+          <marker id="arrowActive" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" class="arrow-fill-active"/>
+          </marker>
+        </defs>
+        <rect id="gridRect" width="100%" height="100%" fill="url(#gridDots)"/>
+        <g id="viewport">
+          <g id="edgeLayer"></g>
+          <g id="stateLayer"></g>
+          <path id="tempEdge" class="temp-edge" hidden=""/>
+          <g id="orbTrail" aria-hidden="true"></g>
+          <g id="orb" hidden="" aria-hidden="true">
+            <circle r="13" class="orb-aura"/>
+            <circle r="5.5" class="orb-core"/>
+          </g>
+        </g>
+      </svg>
+
+      <div id="emptyHint" class="empty-hint" hidden>
+        <p><strong>Kanvas kosong.</strong></p>
+        <p>Klik dua kali di kanvas untuk membuat state,<br>atau muat <em>Contoh DFA</em> di bar atas.</p>
+      </div>
+
+      <!-- Hasil akhir (overlay) -->
+      <div id="result" class="result" hidden>
+        <span id="resultWord" class="result-word">ACCEPTED</span>
+        <span id="resultReason" class="result-reason"></span>
+      </div>
+    </div>
+
+    <!-- handle lebar panel (tarik kiri/kanan) -->
+    <div id="panelResize" class="resize resize-v" role="separator" aria-orientation="vertical" tabindex="0"
+         aria-label="Ubah lebar panel: tarik, atau tekan panah kiri/kanan. Dobel-klik untuk reset."></div>
+
+    <!-- ====== PANEL KANAN ====== -->
+    <aside class="panel" id="panel" aria-label="Inspektor DFA">
+      <div class="panel-head">
+        <h2>Inspektor</h2>
+        <button type="button" id="panelClose" class="mobile-only" aria-label="Tutup panel"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div id="inspector" class="inspector"><!-- diisi app.js --></div>
+    </aside>
+  </main>
+
+  <!-- handle tinggi konsol (tarik atas/bawah) -->
+  <div id="consoleResize" class="resize resize-h" role="separator" aria-orientation="horizontal" tabindex="0"
+       aria-label="Ubah tinggi konsol: tarik, atau tekan panah atas/bawah. Dobel-klik untuk reset."></div>
+
+  <!-- ====== KONSOL BAWAH ====== -->
+  <footer class="console">
+    <div class="console-main">
+      <label class="field-label" for="inputString">String uji</label>
+      <input id="inputString" type="text" placeholder="mis: 1010…" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button type="button" id="playBtn" class="btn primary">
+        <svg class="icon"><use href="#i-play"/></svg><span id="playLabel">Simulasi</span>
+      </button>
+      <button type="button" id="stepBtn" class="btn" title="Proses satu simbol">
+        <svg class="icon"><use href="#i-step"/></svg><span>Langkah</span>
+      </button>
+      <button type="button" id="resetBtn" class="btn" title="Reset simulasi">
+        <svg class="icon"><use href="#i-reset"/></svg><span>Reset</span>
+      </button>
+      <label class="speed" for="speedRange" title="Kecepatan animasi">
+        <span class="sr-only">Kecepatan animasi</span>
+        <svg class="icon" aria-hidden="true"><use href="#i-play"/></svg>
+        <input type="range" id="speedRange" min="0.25" max="4" step="0.25" value="0.75">
+        <span id="speedRead" class="speed-read">×0.75</span>
+      </label>
+    </div>
+    <div class="console-sub">
+      <div id="tokens" class="tokens" aria-hidden="true"></div>
+      <div id="term" class="term" aria-hidden="true"></div>
+      <p id="status" class="sr-only" role="status" aria-live="polite">Siap. Muat contoh DFA atau buat sendiri.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- Popover simbol transisi -->
+<div id="popover" class="popover" hidden role="dialog" aria-labelledby="popTitle">
+  <p id="popTitle" class="pop-title">Simbol transisi</p>
+  <p id="popSub" class="pop-sub">q0 → q1</p>
+  <input id="popInput" type="text" placeholder="mis: a,b atau 0,1…" autocomplete="off" spellcheck="false">
+  <p id="popErr" class="pop-err" hidden>Setiap simbol harus tepat satu karakter.</p>
+  <div class="pop-chips" aria-label="Simbol cepat">
+    <button type="button" data-sym="a">a</button>
+    <button type="button" data-sym="b">b</button>
+    <button type="button" data-sym="0">0</button>
+    <button type="button" data-sym="1">1</button>
+  </div>
+  <div class="pop-actions">
+    <button type="button" id="popCancel" class="btn ghost">Batal</button>
+    <button type="button" id="popOk" class="btn primary">Simpan</button>
+  </div>
+</div>
+
+<!-- Dialog bantuan -->
+<div id="helpBackdrop" class="dialog-backdrop" hidden></div>
+<div id="helpDialog" class="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="dialog-head">
+    <h2 id="helpTitle">Cara pakai</h2>
+    <button type="button" id="helpClose" aria-label="Tutup bantuan"><svg class="icon"><use href="#i-x"/></svg></button>
+  </div>
+  <ol class="help-list">
+    <li><strong>Buat state</strong> — alat <em>State</em> lalu klik kanvas, atau klik dua kali kanvas. Geser state dengan alat <em>Pilih</em>.</li>
+    <li><strong>Tandai awal/akhir</strong> — klik state, lalu atur di panel Inspektor. State awal punya panah masuk; state akhir berlingkar ganda.</li>
+    <li><strong>Buat transisi</strong> — alat <em>Transisi</em>, klik state asal lalu state tujuan, isi simbol (mis. <code>a</code> atau <code>0,1</code>).</li>
+    <li><strong>Uji string</strong> — ketik string di konsol bawah, tekan <strong>Simulasi</strong> atau <strong>Langkah</strong> untuk satu simbol.</li>
+    <li><strong>Hapus</strong> — pilih state/transisi lalu tekan <kbd>Delete</kbd> atau tombol hapus di Inspektor.</li>
+  </ol>
+  <p class="help-note">Pintasan: <kbd>1</kbd> pilih · <kbd>2</kbd> state · <kbd>3</kbd> transisi · <kbd>Esc</kbd> batal · scroll untuk zoom.</p>
+</div>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<canvas id="confetti" hidden></canvas>
+
+<script src="js/dfa.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
